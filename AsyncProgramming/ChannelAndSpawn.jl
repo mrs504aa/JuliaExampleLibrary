@@ -1,5 +1,5 @@
 ```
-Example from https://discourse.juliacn.com/t/topic/6289/10?u=mrs504aa
+From https://discourse.juliacn.com/t/topic/6289/10?u=mrs504aa
 ```
 function ReadData(Chan::Channel)
     while isopen(Chan)
