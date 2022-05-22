@@ -1,4 +1,4 @@
-# A julia code example gallery
+# A julia code example library
 
 # channel and spawn
 
