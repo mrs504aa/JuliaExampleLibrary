@@ -8,7 +8,7 @@ function ReadData(Chan::Channel)
             close(Chan)
         end
         put!(Chan, S)
-        yield()
+        # yield()
     end
     return 0
 end
@@ -17,7 +17,8 @@ function Process(Chan::Channel)
     while isopen(Chan)
         S = take!(Chan)
         println(S)
-        yield()
+        # yield()
+        sleep(2.0)
     end
 end
 
