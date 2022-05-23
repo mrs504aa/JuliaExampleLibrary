@@ -1,6 +1,6 @@
-```
+"""
 From https://discourse.juliacn.com/t/topic/6289/10?u=mrs504aa
-```
+"""
 function ReadData(Chan::Channel)
     while isopen(Chan)
         S = readline()
@@ -8,6 +8,7 @@ function ReadData(Chan::Channel)
             close(Chan)
         end
         put!(Chan, S)
+        yield()
     end
     return 0
 end
@@ -16,6 +17,7 @@ function Process(Chan::Channel)
     while isopen(Chan)
         S = take!(Chan)
         println(S)
+        yield()
     end
 end
 

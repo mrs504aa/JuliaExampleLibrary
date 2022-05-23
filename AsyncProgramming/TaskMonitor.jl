@@ -1,6 +1,6 @@
-```
+"""
 From https://discourse.julialang.org/t/printing-in-a-background-process/81453
-```
+"""
 
 mutable struct Status
     on::Bool
