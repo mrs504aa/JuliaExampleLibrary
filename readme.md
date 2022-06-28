@@ -15,3 +15,9 @@ One thread working and one thread as monitor.
 ### Compare Interpolation methods
 
 Two methods are from Interpolations.jl and FourierTools.jl.
+
+## Structure
+
+### Function in structure
+
+Example about the realization of ```A.PrintInformation()``` in which type of ```A``` is a ```struct```.
