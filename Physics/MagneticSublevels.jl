@@ -1,5 +1,4 @@
 using QuantumOptics
-# using GLMakie
 using CairoMakie
 using LinearAlgebra
 using IterativeSolvers
@@ -11,11 +10,11 @@ using IterativeSolvers
 Oc = 10.0
 Op = 0.001
 
-CP = sqrt(2) * Oc * 1.0
+CP = 1.0 * Oc * 1.0
 CL = 1.0 * Oc * 0.0
-CR = 1.0 * Oc * 0.0
+CR = 1.0 * Oc * 0.000001
 
-PP = sqrt(2) * Op * 0.0
+PP = 1.0 * Op * 0.0
 PL = 1.0 * Op * 1.0
 PR = 1.0 * Op * 1.0
 
@@ -79,36 +78,32 @@ function SState(Dp)
 
     JOperator = Any[]
 
-    push!(JOperator, 1 / sqrt(3) * transition(HilbertSpace, 6, 1))
-    JOperator[1] += 1 / sqrt(12) * transition(HilbertSpace, 7, 2)
-    JOperator[1] += 1 / sqrt(12) * transition(HilbertSpace, 9, 4)
-    JOperator[1] += 1 / sqrt(3) * transition(HilbertSpace, 10, 5)
+    push!(JOperator, -1 / sqrt(3) * transition(HilbertSpace, 6, 1))
+    JOperator[end] += -1 / sqrt(12) * transition(HilbertSpace, 7, 2)
+    JOperator[end] += +1 / sqrt(12) * transition(HilbertSpace, 9, 4)
+    JOperator[end] += +1 / sqrt(3) * transition(HilbertSpace, 10, 5)
 
-    JOperator[1] += 1 / sqrt(6) * transition(HilbertSpace, 6, 2)
-    JOperator[1] += 1 / sqrt(4) * transition(HilbertSpace, 7, 3)
-    JOperator[1] += 1 / sqrt(4) * transition(HilbertSpace, 8, 4)
-    JOperator[1] += 1 / sqrt(6) * transition(HilbertSpace, 9, 5)
+    push!(JOperator, +1 / sqrt(6) * transition(HilbertSpace, 6, 2))
+    JOperator[end] += +1 / sqrt(4) * transition(HilbertSpace, 7, 3)
+    JOperator[end] += +1 / sqrt(4) * transition(HilbertSpace, 8, 4)
+    JOperator[end] += +1 / sqrt(6) * transition(HilbertSpace, 9, 5)
 
-    JOperator[1] += 1 / sqrt(6) * transition(HilbertSpace, 7, 1)
-    JOperator[1] += 1 / sqrt(4) * transition(HilbertSpace, 8, 2)
-    JOperator[1] += 1 / sqrt(4) * transition(HilbertSpace, 9, 3)
-    JOperator[1] += 1 / sqrt(6) * transition(HilbertSpace, 10, 4)
+    push!(JOperator, -1 / sqrt(6) * transition(HilbertSpace, 7, 1))
+    JOperator[end] += -1 / sqrt(4) * transition(HilbertSpace, 8, 2)
+    JOperator[end] += -1 / sqrt(4) * transition(HilbertSpace, 9, 3)
+    JOperator[end] += -1 / sqrt(6) * transition(HilbertSpace, 10, 4)
 
-    push!(JOperator, 1 / sqrt(4) * transition(HilbertSpace, 11, 2))
-    JOperator[2] += 1 / sqrt(3) * transition(HilbertSpace, 12, 3)
-    JOperator[2] += 1 / sqrt(4) * transition(HilbertSpace, 13, 4)
+    push!(JOperator, +1 / sqrt(4) * transition(HilbertSpace, 11, 2))
+    JOperator[end] += +1 / sqrt(3) * transition(HilbertSpace, 12, 3)
+    JOperator[end] += +1 / sqrt(4) * transition(HilbertSpace, 13, 4)
 
-    JOperator[2] += 1 / sqrt(12) * transition(HilbertSpace, 11, 3)
-    JOperator[2] += 1 / sqrt(4) * transition(HilbertSpace, 12, 4)
-    JOperator[2] += 1 / sqrt(2) * transition(HilbertSpace, 13, 5)
+    push!(JOperator, -1 / sqrt(12) * transition(HilbertSpace, 11, 3))
+    JOperator[end] += -1 / sqrt(4) * transition(HilbertSpace, 12, 4)
+    JOperator[end] += -1 / sqrt(2) * transition(HilbertSpace, 13, 5)
 
-    JOperator[2] += 1 / sqrt(2) * transition(HilbertSpace, 11, 1)
-    JOperator[2] += 1 / sqrt(4) * transition(HilbertSpace, 12, 2)
-    JOperator[2] += 1 / sqrt(12) * transition(HilbertSpace, 13, 3)
-
-    # for i in 1:10
-    #     push!(JOperator, 0.05 * transition(HilbertSpace, i, i))
-    # end
+    push!(JOperator, -1 / sqrt(2) * transition(HilbertSpace, 11, 1))
+    JOperator[end] += -1 / sqrt(4) * transition(HilbertSpace, 12, 2)
+    JOperator[end] += -1 / sqrt(12) * transition(HilbertSpace, 13, 3)
 
     ###################################################################
 
@@ -132,19 +127,21 @@ function SState(Dp)
     JOperator = DenseOperator.(JOperator)
 
     Rho0 = 0.0 * transition(HilbertSpace, 1, 1)
-    for i = 11:13
+    for i = 6:13
         Rho0 += 1.0 * transition(HilbertSpace, i, i)
     end
     normalize!(Rho0)
+    Rho0 = DenseOperator(Rho0)
 
-    rho_ss = steadystate.iterative!(Rho0, H, JOperator, gmres!)
+    _, rho_master = steadystate.master(H, JOperator, rho0 = Rho0)
+    rho_ss = rho_master[end]
 
     Sum = zeros(ComplexF64, 3)
     for i in eachindex(POperator)
         Sum[i] += expect(POperator[i], rho_ss)
     end
 
-    return Sum ./ Op
+    return Sum
 end
 
 DpAxis = collect(range(-20, 20, 1001))
